@@ -133,11 +133,18 @@ trajectories/<group>/<task>/
     requests.jsonl.gz                      每次模型请求:状态、延迟、token 用量、裁图数、错误
     request-NNNN.skeleton.json             抽样请求的完整结构(第 1、2、3、50、100… 次)
     bridge.jsonl.gz, agent.stderr.log
+  video/                                   回合的完整录像(mp4),路径同环境输出目录
 ```
 
 - 每个(组合, 任务)只收录**决定该槽位结局的那次尝试**,不收录被平台故障作废的尝试。
+- **回合录像**:435 个 mp4,共 2.7 GB、3.1 小时,覆盖 252 个槽位中的 217 个(Gemini 79、Opus 64、GLM 74),
+  是环境自己录制的整段回合画面(视角与路径因 benchmark 而异,如 `video/out/video/camera.mp4`、
+  robolab 的 `video/out/official/<任务>/…`、behavior_1k 的 `video/videos/<任务>_….mp4`)。逐字节保留,
+  已逐个解码校验;文件内嵌标签只有编码器名。缺录像的 35 个槽位:Opus 的 15 个 robodojo 拒答(模型
+  没有执行回合)、Opus 5 个与 GLM 10 个 behavior_1k 槽位(环境未写出录像,或回合归档在拉取时被截断)、
+  Gemini 5 个 robodojo 槽位(环境未写出录像)。
 - **相机图像已替换为占位符** `<image sha256=… bytes=…>`,保留原图的摘要与大小,其余内容逐字节保留。
-  替换前 20.3 GB,替换后 4.9 GB(共 138,803 张)。
+  替换前 20.3 GB,替换后 4.9 GB(共 138,803 张)。这里指的是发给模型的观察图像;回合录像见上一条。
 - 内部文件系统路径、内网主机名、内部平台名、上游路由前缀、网关请求 ID、沙盒实例名都已替换为
   中性占位符(如 `<repo>/`、`<internal-host>`、`AgentBox`、`GPUVM`、`SandboxSDK`、`<redacted>`、`<pod>`)。
   一次 Bash 调用打印出的内部 SDK 文档已删除。
